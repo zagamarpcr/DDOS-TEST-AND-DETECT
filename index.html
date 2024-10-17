@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Loading Time Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #progressBar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        #progress {
+            height: 30px;
+            background-color: #4caf50;
+            width: 0;
+            transition: width 0.1s;
+        }
+        #loadingTime {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        let startTime, interval;
+
+        function updateProgressBar() {
+            const currentTime = performance.now();
+            const loadTime = currentTime - startTime;
+            const progressPercentage = Math.min((loadTime / 5000) * 100, 100); // 5 seconds max
+
+            document.getElementById('progress').style.width = progressPercentage + '%';
+            document.getElementById('loadingTime').innerText = `Loading Time: ${Math.round(loadTime)} ms`;
+
+            // Check if load time exceeds a threshold
+            if (loadTime > 2000) { // 2000 ms (2 seconds) threshold
+                alert("Warning: The site is slowing down! Possible DDoS attack.");
+            }
+        }
+
+        function checkLoadTime() {
+            startTime = performance.now();
+            interval = setInterval(updateProgressBar, 100); // Update every 100 ms
+
+            window.onload = function() {
+                clearInterval(interval);
+                const endTime = performance.now();
+                const loadTime = endTime - startTime;
+                document.getElementById('loadingTime').innerText = `Final Loading Time: ${Math.round(loadTime)} ms`;
+            };
+        }
+
+        // Call the function on page load
+        window.onload = checkLoadTime;
+    </script>
+</head>
+<body>
+    <h1>Welcome to the Live Loading Time Detection Demo</h1>
+    <div id="progressBar">
+        <div id="progress"></div>
+    </div>
+    <div id="loadingTime">Loading Time: 0 ms</div>
+</body>
+</html>
